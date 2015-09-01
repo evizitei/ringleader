@@ -1,4 +1,9 @@
-ringleader sets up a container running [docker-gen][https://github.com/jwilder/docker-gen].  It then watches
+## Ringleader
+
+(perhaps also known as "docker-register + arbitrary config info in ruby", special thanks
+to https://github.com/jwilder/docker-register)
+
+Ringleader sets up a container running [docker-gen][https://github.com/jwilder/docker-gen].  It then watches
 for containers with the right metadata and sends their exposed configuration data
 through to etcd, which can be queried by other services.
 
