@@ -27,5 +27,42 @@ To run ringleader once an image has been built:
 
     $ docker run -e ETCD_HOST=1.2.3.4 -v /var/run/docker.sock:/var/run/docker.sock evizitei/ringleader
 
-After that, any container that starts with labels matching the convention will have their
-information pushed into etcd.
+Now ringleader is running and watching for any containers with labels (https://docs.docker.com/userguide/labels-custom-metadata/) that look like this:
+
+```Dockerfile
+LABEL etcd_conf_key="base_key"
+LABEL etcd_conf_data="{\"key1\"=\"value1\",\"key2\"=\"value2\"}"
+```
+
+The 'etcd_conf_key' is the url bucket in etcd into which the data will be placed,
+and the 'etcd_conf_data' is a json hash of the data you want the container to expose.
+For example, if you launched some application container with the above labels in
+them, ringleader would talk to etcd and you'd end up with this:
+
+```bash
+$> curl http://etcd-host:4001/v2/keys/base_key
+{
+  "action":"get",
+  "node":{
+    "key":"/base_key",
+    "dir":true,
+    "nodes":[
+    {
+      "key":"/base_key/key1",
+      "value":"value1",
+      "modifiedIndex":34,
+      "createdIndex":34
+    },{
+      "key":"/base_key/key2",
+      "value":"value2",
+      "modifiedIndex":35,
+      "createdIndex":35
+    }
+    ],
+    "modifiedIndex":32,
+    "createdIndex":32
+  }
+}
+```
+
+And now other containers can ask for configuration information relevant to the "base_key" app.
