@@ -19,7 +19,11 @@ docker run -p 4001:4001 -p 2380:2380 -p 2379:2379 --name etcd quay.io/coreos/etc
 now 4001 is exposed as a port on your docker host to talk to etcd over, and you could
 use the IP of your docker host as the value for ETCD_HOST in the ringleader container.
 
-To run ringleader:
+To build ringleader locally from the Dockerfile:
+
+    $ docker build -t evizitei/ringleader:latest .
+
+To run ringleader once an image has been built:
 
     $ docker run -e ETCD_HOST=1.2.3.4 -v /var/run/docker.sock:/var/run/docker.sock evizitei/ringleader
 
