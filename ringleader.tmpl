@@ -1,3 +1,4 @@
 #!/usr/bin/ruby
-
-puts "Hello, Docker-GEN!"
+require "etcd"
+client = Etcd.client(host: "{{ .Env.ETCD_HOST }}", port: 4001)
+client.set('/ringleader/test', value: "mission-accomplished")

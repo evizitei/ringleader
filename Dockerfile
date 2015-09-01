@@ -1,7 +1,7 @@
 FROM ruby:2.2.3
 
-RUN apt-get update
-RUN apt-get install -y wget bash
+RUN apt-get update && apt-get install -y wget bash
+RUN gem install etcd
 
 RUN mkdir /app
 WORKDIR /app
