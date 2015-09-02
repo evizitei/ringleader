@@ -25,8 +25,12 @@ then you'll want to pass -e VIRTUAL_HOST=etcd.docker or something to make sure o
 don't have to find the docker host IP or anything, and that would look like this:
 
 ```bash
-$ docker run -e VIRTUAL_HOST=etcd.docker -p 4001:4001 -p 2380:2380 -p 2379:2379 -v /var/run/docker.sock:/var/run/docker.sock evizitei/ringleader
+$ docker run -e VIRTUAL_HOST=etcd.docker -e VIRTUAL_PORT=4001 -p 4001:4001 -p 2380:2380 -p 2379:2379 -v /var/run/docker.sock:/var/run/docker.sock evizitei/ringleader
 ```
+
+Make sure to use VIRTUAL_PORT.  Because the container exposes multiple ports, it
+can make nginx-proxy output a bad config file and break *all* your routing when
+it tries to restart.
 
 #### Without internal etcd (you care about one process per container in dev)
 You'll need some etcd store either running in a different container, or available
