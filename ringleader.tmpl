@@ -20,18 +20,31 @@ config_data = JSON.parse(%q({{$container.Labels.etcd_conf_data}}))
 directories << directory
 client.set("#{ringleader_directory}/#{directory}", value: "1")
 config_data.each do |key, value|
-  client.set("/#{directory}/#{key}", value: value)
+  composite_key = "/#{directory}/#{key}"
+  current_value = nil
+  begin
+    current_value = client.get(composite_key)
+  rescue => Etcd::KeyNotFound
+  end
+
+  if current_value != value
+    client.set(composite_key, value: value)
+  end
 end
 
   {{ end }}
 {{ end }}
 
 #remove container configs that are no longer running
-keys_record = client.get(ringleader_directory)
-keys_record.children.each do |node|
-  directory = node.key.split("/").last
-  if !directories.include?(directory)
-    client.delete("/#{directory}", recursive: true)
-    client.delete("#{ringleader_directory}/#{directory}")
+begin
+  keys_record = client.get(ringleader_directory)
+  keys_record.children.each do |node|
+    directory = node.key.split("/").last
+    if !directories.include?(directory)
+      client.delete("/#{directory}", recursive: true)
+      client.delete("#{ringleader_directory}/#{directory}")
+    end
   end
+rescue => Etcd::KeyNotFound
+  puts "No existing keys to manage"
 end
