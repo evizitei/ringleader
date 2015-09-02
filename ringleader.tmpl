@@ -9,15 +9,29 @@ etcd_host = "127.0.0.1"
 {{end}}
 
 client = Etcd.client(host: etcd_host, port: 4001)
+directories = []
+ringleader_directory = "/ringleader"
 
 {{ range $key, $containers := groupBy $ "Labels.etcd_conf_key" }}
   {{ range $index, $container := $containers }}
 
 directory = "{{$container.Labels.etcd_conf_key}}"
 config_data = JSON.parse(%q({{$container.Labels.etcd_conf_data}}))
+directories << directory
+client.set("#{ringleader_directory}/#{directory}", value: "1")
 config_data.each do |key, value|
   client.set("/#{directory}/#{key}", value: value)
 end
 
   {{ end }}
 {{ end }}
+
+#remove container configs that are no longer running
+keys_record = client.get(ringleader_directory)
+keys_record.children.each do |node|
+  directory = node.key.split("/").last
+  if !directories.include?(directory)
+    client.delete("/#{directory}", recursive: true)
+    client.delete("#{ringleader_directory}/#{directory}")
+  end
+end

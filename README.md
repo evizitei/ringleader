@@ -89,3 +89,7 @@ $> curl http://etcd-host:4001/v2/keys/base_key
 ```
 
 And now other containers can ask for configuration information relevant to the "base_key" app.
+
+Naturally, once the container with that metadata is no longer running, ringleader
+will delete that directory from etcd so other apps don't expect to be able to
+talk to a service that's no longer running.
