@@ -9,6 +9,26 @@ through to etcd, which can be queried by other services.
 
 ### Usage
 
+#### With internal etcd
+If you don't pass an ETCD_HOST env var when the container starts,
+ringleader will start up an internal etcd instance exposed on 2379 and 4001 to
+make config information available to etcd clients in other containers without
+having to run a seperate etcd container.  Startup ringleader like this:
+
+```bash
+$ docker run -p 4001:4001 -p 2380:2380 -p 2379:2379 -v /var/run/docker.sock:/var/run/docker.sock evizitei/ringleader
+```
+
+The ports are necessary for letting etcd clients talk to the process in this container. If
+using in conjunction with https://github.com/jwilder/nginx-proxy (which I recommend),
+then you'll want to pass -e VIRTUAL_HOST=etcd.docker or something to make sure other clients
+don't have to find the docker host IP or anything, and that would look like this:
+
+```bash
+$ docker run -e VIRTUAL_HOST=etcd.docker -p 4001:4001 -p 2380:2380 -p 2379:2379 -v /var/run/docker.sock:/var/run/docker.sock evizitei/ringleader
+```
+
+#### Without internal etcd (you care about one process per container in dev)
 You'll need some etcd store either running in a different container, or available
 at a host accessible to the ringleader instance. use the ETCD_HOST environment variable
 to provide the hostname or IP at which etcd is running.  For an example configuration

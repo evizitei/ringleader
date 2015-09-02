@@ -2,7 +2,13 @@
 require "etcd"
 require "json"
 
-client = Etcd.client(host: "{{ .Env.ETCD_HOST }}", port: 4001)
+{{if .Env.ETCD_HOST}}
+etcd_host = "{{ .Env.ETCD_HOST }}"
+{{else}}
+etcd_host = "127.0.0.1"
+{{end}}
+
+client = Etcd.client(host: etcd_host, port: 4001)
 
 {{ range $key, $containers := groupBy $ "Labels.etcd_conf_key" }}
   {{ range $index, $container := $containers }}

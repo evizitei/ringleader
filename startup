@@ -1,0 +1,11 @@
+#!/bin/bash
+
+
+## Boot the app
+if [ "$ETCD_HOST" = "" ]; then
+  echo "Starting with INTERNAL etcd..."
+  exec forego start -r
+else
+  echo "Using external etcd, only starting ringleader..."
+  exec forego start -c dockergen=1,etcd=0
+fi

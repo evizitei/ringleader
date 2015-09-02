@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Watching containers for etcd conf metadata..."
+docker-gen -interval 10 -watch -notify "ruby /tmp/ringleader.rb" ringleader.tmpl /tmp/ringleader.rb
